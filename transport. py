@@ -1,0 +1,50 @@
+"""
+Samsun-Cotonou Transport Optimizer - FULL VERSION
+Master Thesis Prep - OMU Samsun - Prof. Dr. Sevim ALISIR
+Marius HOUEDAKO - Turkey Burslari 2028 - Industrial Engineering
+Objective: Minimize Turkey -> West Africa shipping cost
+"""
+
+import numpy as np
+from scipy.optimize import linprog
+
+# === DATA ===
+# Origins: 0=Samsun Port, 1=Istanbul Port
+# Destinations: 0=Cotonou (Benin), 1=Lagos (Nigeria - ECOWAS hub)
+
+cost_matrix = np.array([
+    [1200, 1500],  # Samsun costs
+    [1400, 1300]   # Istanbul costs
+])
+
+supply = np.array([60, 40])   # Containers available
+demand = np.array([70, 30])   # Containers needed
+
+# Flatten costs for linprog: x = [x00, x01, x10, x11]
+c = cost_matrix.flatten()
+
+# Constraints: Supply constraints (<=)
+A_eq = []
+b_eq = []
+
+# Supply equality: sum_j x_ij = supply_i
+# Demand equality: sum_i x_ij = demand_j
+
+# For transportation, we use equality constraints
+# Supply constraints
+A_eq_supply = np.array([
+    [1, 1, 0, 0],  # Samsun total
+    [0, 0, 1, 1]   # Istanbul total
+])
+
+# Demand constraints
+A_eq_demand = np.array([
+    [1, 0, 1, 0],  # Cotonou total
+    [0, 1, 0, 1]   # Lagos total
+])
+
+A_eq = np.vstack([A_eq_supply, A_eq_demand])
+b_eq = np.hstack([supply, demand])
+
+# Bounds: x >= 0
+bounds = [(0
